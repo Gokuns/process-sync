@@ -1,10 +1,14 @@
+/*KUSIS ID: 53940 PARTNER NAME: Asli Karahan
+KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
- /****************************************************************************** 
-  pthread_sleep takes an integer number of seconds to pause the current thread 
+
+ /******************************************************************************
+  pthread_sleep takes an integer number of seconds to pause the current thread
   original by Yingwu Zhu
   updated by Muhammed Nufail Farooqi
   *****************************************************************************/
@@ -36,4 +40,3 @@ int pthread_sleep (int seconds)
    return res;
 
 }
-
