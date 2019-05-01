@@ -23,10 +23,7 @@ struct Car {
   char direction[6];
 };
 
-pthread_mutex_t northMutex;
-pthread_mutex_t eastMutex;
-pthread_mutex_t southMutex;
-pthread_mutex_t westMutex;
+pthread_mutex_t mutex;
 
 queue <Car> northQ;
 queue <Car> eastQ;
@@ -49,12 +46,12 @@ void* road_function(void *lane)
   long thread_id = (long)lane;
   char direction[6];
   strcpy(direction, lanes[thread_id]);
-  int i =0;
   gettimeofday(&currentTime, NULL);
 
   while(startTime.tv_sec+simulationTime > currentTime.tv_sec){
     printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
-    i++;
+
+
     pthread_sleep(1);
     gettimeofday(&currentTime, NULL);
 
@@ -154,10 +151,8 @@ int main(int argc, char* argv[])
 
 pthread_attr_init(&attr);
 pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-pthread_mutex_init(&northMutex, NULL);
-pthread_mutex_init(&eastMutex, NULL);
-pthread_mutex_init(&southMutex, NULL);
-pthread_mutex_init(&westMutex, NULL);
+pthread_mutex_init(&mutex, NULL);
+
 
 
 pthread_create(&thread_N, &attr, road_function, (void *)t1);
@@ -166,6 +161,7 @@ pthread_create(&thread_S, &attr, road_function, (void *)t3);
 pthread_create(&thread_W, &attr, road_function, (void *)t4);
 
 pthread_create(&thread_PO, &attr, po_function, NULL);
+
 
 pthread_join(thread_N, NULL);
 pthread_join(thread_E, NULL);
