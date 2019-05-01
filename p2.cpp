@@ -8,7 +8,7 @@ KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
 #include <time.h>
 #include <sys/time.h>
 #include <queue>
-
+using std::queue;
 
 #define NUM_THREADS 5 /* 4 different lanes + 1 PO */
 
