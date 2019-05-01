@@ -34,7 +34,9 @@ double p; //command line arg with -p
 time_t startTime; //start time of the simulation
 time_t currentTime;
 
+void* road_function(){
 
+}
 
 
 
@@ -77,40 +79,43 @@ int pthread_sleep (int seconds)
 
 int main(int argc, char* argv[])
 {
-
   pthread_t thread_N;
   pthread_t thread_E;
   pthread_t thread_S;
   pthread_t thread_W;
 
   pthread_t thread_PO;
+  pthread_attr_t attr;
 
-  long t1 = 0, t2 = 1, t3 = 2, t4 = 3;
+
+  struct Car araba;
 
   for(int i = 1; i < argc; i++) { /* argv[0] is the program name */
-    if(strcmp(argv[i], "-s") == 0) {
-      simulationTime = atoi(argv[i+1]);
-    } else if(strcmp(argv[i], "-p") == 0) {
-      p = (double) atof(argv[i+1]);
-    }
+  if(strcmp(argv[i], "-s") == 0) {
+    simulationTime = atoi(argv[i+1]);
+  } else if(strcmp(argv[i], "-p") == 0) {
+    p = (double) atof(argv[i+1]);
   }
+}
 
-  printf("simulation time: %d\n",simulationTime);
-  printf("probability: %f\n",p);
+printf("simulation time: %d\n",simulationTime);
+printf("probability: %f\n",p);
+
+pthread_attr_init(&attr);
+pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+pthread_mutex_init(&northMutex, NULL);
+pthread_mutex_init(&eastMutex, NULL);
+pthread_mutex_init(&southMutex, NULL);
+pthread_mutex_init(&westMutex, NULL);
 
 
-  pthread_create(&thread_N, &attr, section_thread_function, (void *)t1);
-  pthread_create(&thread_E, &attr, section_thread_function, (void *)t2);
-  pthread_create(&thread_S, &attr, section_thread_function, (void *)t3);
-  pthread_create(&thread_W, &attr, section_thread_function, (void *)t4);
-  pthread_create(&thread_PO, &attr, center_thread_function, NULL);
+pthread_create(&thread_N, &attr, road_function, (void *)northMutex);
+pthread_create(&thread_E, &attr, road_function, (void *)eastMutex);
+pthread_create(&thread_S, &attr, road_function, (void *)southMutex);
+pthread_create(&thread_W, &attr, road_function, (void *)westMutex);
 
-  pthread_join(thread_N, NULL);
-  pthread_join(thread_E, NULL);
-  pthread_join(thread_S, NULL);
-  pthread_join(thread_W, NULL);
-  cout << "will join thread center" << endl;
-  pthread_join(thread_PO, NULL);
+pthread_create(&thread_PO, &attr, center_thread_function, NULL);
+
 
 
 }
