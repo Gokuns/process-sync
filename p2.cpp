@@ -3,13 +3,14 @@ KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
 */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
 #include <sys/time.h>
-#include <queue>
 #include <string.h>
-
+#include <iostream>
+#include <queue>
 using namespace std;
 int pthread_sleep (int seconds);
 
@@ -48,6 +49,16 @@ void* road_function(void *lane)
   long thread_id = (long)lane;
   char direction[6];
   strcpy(direction, lanes[thread_id]);
+  int i =0;
+  gettimeofday(&currentTime, NULL);
+
+  while(startTime.tv_sec+simulationTime > currentTime.tv_sec){
+    printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
+    i++;
+    pthread_sleep(1);
+    gettimeofday(&currentTime, NULL);
+
+  }
 
 
 }
@@ -153,6 +164,14 @@ pthread_create(&thread_S, &attr, road_function, (void *)t3);
 pthread_create(&thread_W, &attr, road_function, (void *)t4);
 
 pthread_create(&thread_PO, &attr, po_function, NULL);
+
+pthread_join(thread_N, NULL);
+pthread_join(thread_E, NULL);
+pthread_join(thread_S, NULL);
+pthread_join(thread_W, NULL);
+
+pthread_join(thread_PO, NULL);
+
 
 }
 
