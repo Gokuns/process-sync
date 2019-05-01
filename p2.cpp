@@ -11,6 +11,7 @@ KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
 #include <string.h>
 
 using namespace std;
+int pthread_sleep (int seconds);
 
 #define NUM_THREADS 5 /* 4 different lanes + 1 PO */
 
@@ -18,6 +19,7 @@ struct Car {
   int id;
   struct timeval arrivalTime;
   struct timeval crossTime;
+  char direction[6];
 };
 
 pthread_mutex_t northMutex;
@@ -34,8 +36,11 @@ int simulationTime; //command line arg with -s
 double p; //command line arg with -p
 struct timeval startTime; //start time of the simulation
 struct timeval currentTime;
+int dirSelected= 0;
+int dir = 0;
 
 char lanes[4][6] = {"North", "East", "South", "West"};
+queue <Car> allLanes[4]= {northQ, eastQ, southQ, westQ};
 
 
 void* road_function(void *lane)
@@ -44,10 +49,59 @@ void* road_function(void *lane)
   char direction[6];
   strcpy(direction, lanes[thread_id]);
 
+
 }
 
 void* po_function(void *lane)
 {
+
+  while (currentTime.tv_sec <= startTime.tv_sec + simulationTime) {
+    if(dirSelected==0)
+    {
+    dir = 0;
+    int sz=0;
+    if(westQ.size()>=sz)
+    {
+      sz = westQ.size();
+      dir =3;
+    }
+    if(southQ.size()>=sz)
+    {
+      sz = southQ.size();
+      dir =2;
+    }
+    if(eastQ.size()>=sz)
+    {
+      sz = eastQ.size();
+      dir =1;
+    }
+    if(northQ.size()>=sz)
+    {
+      sz = northQ.size();
+      dir =0;
+    }
+    dirSelected = 1;
+  }if(dirSelected==1)
+  {
+    if(northQ.size()>=5 || eastQ.size()>=5 || southQ.size()>=5 || westQ.size()>=5 )
+    {
+    dirSelected =0;
+
+
+    }
+    if(allLanes[dir].size()!=0){
+      allLanes[dir].pop();
+      pthread_sleep(1);
+      gettimeofday(&currentTime, NULL);
+    }
+
+  }
+
+
+
+
+
+  }
 
 }
 
