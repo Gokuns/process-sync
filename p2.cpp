@@ -33,8 +33,8 @@ queue <Car> eastQ;
 queue <Car> southQ;
 queue <Car> westQ;
 
-int simulationTime; //command line arg with -s
-double p; //command line arg with -p
+int simulationTime = 5; //command line arg with -s
+double p = 0.5; //command line arg with -p
 struct timeval startTime; //start time of the simulation
 struct timeval currentTime;
 int dirSelected= 0;
@@ -59,6 +59,7 @@ void* road_function(void *lane)
     gettimeofday(&currentTime, NULL);
 
   }
+  pthread_exit(NULL);
 
 
 }
@@ -66,7 +67,7 @@ void* road_function(void *lane)
 void* po_function(void *lane)
 {
 
-  while (currentTime.tv_sec <= startTime.tv_sec + simulationTime) {
+  while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
     if(dirSelected==0)
     {
     dir = 0;
@@ -113,6 +114,7 @@ void* po_function(void *lane)
 
 
   }
+  pthread_exit(NULL);
 
 }
 
