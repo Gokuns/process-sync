@@ -29,7 +29,7 @@ queue <Car> northQ;
 queue <Car> eastQ;
 queue <Car> southQ;
 queue <Car> westQ;
-
+int car_count=4;
 int simulationTime = 5; //command line arg with -s
 double p = 0.5; //command line arg with -p
 struct timeval startTime; //start time of the simulation
@@ -50,6 +50,37 @@ void* road_function(void *lane)
 
   while(startTime.tv_sec+simulationTime > currentTime.tv_sec){
     printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
+    printf("Locking the intersection\n");
+
+  pthread_mutex_lock(&mutex);
+  printf("locked the intersection as lane %d\n", lane);
+  switch((long)lane){
+    case 0:
+    printf("North\n");
+
+    struct Car newcar;
+    newcar.id=car_count;
+    car_count++;
+    newcar.arrivalTime=currentTime;
+    northQ.push(newcar);
+    break;
+    case 1:
+    printf("East\n");
+
+    break;
+    case 2:
+    printf("South\n");
+
+    break;
+    case 3:
+    printf("West\n");
+
+    break;
+
+  }
+  pthread_mutex_unlock(&mutex);
+  printf("unlocked the intersection as lane %d\n", lane);
+
 
 
     pthread_sleep(1);
@@ -133,6 +164,7 @@ int main(int argc, char* argv[])
 
   long t1 = 0, t2 = 1, t3 = 2, t4 = 3;
 
+  srand(500);
 
   struct Car araba;
 
@@ -148,6 +180,9 @@ int main(int argc, char* argv[])
   printf("probability: %f\n",p);
   gettimeofday(&startTime, NULL);
   printf("%f\n", startTime.tv_sec);
+  int randy = rand();
+  float tl = (float)randy/RAND_MAX;
+
 
 pthread_attr_init(&attr);
 pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -170,7 +205,7 @@ pthread_join(thread_W, NULL);
 
 pthread_join(thread_PO, NULL);
 
-
+printf("Latest@!!@#!@  %d\n", northQ.size());
 }
 
 /******************************************************************************
