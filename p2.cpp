@@ -134,7 +134,7 @@ void* po_function(void *lane)
 
     }
     else if(selectedQ.size()!=0){
-      printf("======================================")
+      printf("======================================");
       printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
       selectedQ.pop();
       *allLanes[dir] = selectedQ;
