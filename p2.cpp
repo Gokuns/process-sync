@@ -6,13 +6,37 @@ KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
+#include <sys/time.h>
+#include <queue>
+
+
+#define NUM_THREADS 5 /* 4 different lanes + 1 PO */
+
+struct Car {
+  int car_id;
+  time_t arrival_time;
+};
+
+pthread_mutex_t northMutex;
+pthread_mutex_t eastMutex;
+pthread_mutex_t southMutex;
+pthread_mutex_t westMutex;
+
+queue <Car> northQ;
+queue <Car> eastQ;
+queue <Car> southQ;
+queue <Car> westQ;
+
+
+
+
 
  /******************************************************************************
   pthread_sleep takes an integer number of seconds to pause the current thread
   original by Yingwu Zhu
   updated by Muhammed Nufail Farooqi
   *****************************************************************************/
-  
+
 int pthread_sleep (int seconds)
 {
    pthread_mutex_t mutex;
@@ -39,5 +63,14 @@ int pthread_sleep (int seconds)
 
    //Upon successful completion, a value of zero shall be returned
    return res;
+
+}
+
+
+int main(int argc, char* argv[])
+{
+  pthread_sleep(3);
+
+
 
 }
