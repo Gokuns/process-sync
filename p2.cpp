@@ -15,8 +15,9 @@ using namespace std;
 #define NUM_THREADS 5 /* 4 different lanes + 1 PO */
 
 struct Car {
-  int car_id;
-  time_t arrival_time;
+  int id;
+  time_t arrivalTime;
+  time_t crossTime;
 };
 
 pthread_mutex_t northMutex;
@@ -34,7 +35,18 @@ double p; //command line arg with -p
 time_t startTime; //start time of the simulation
 time_t currentTime;
 
-void* road_function(){
+char lanes[4][6] = {"North", "East", "South", "West"};
+
+
+void* road_function(void *lane)
+{
+  long thread_id = (long)lane;
+  //char direction[5] = lanes[thread_id];
+
+}
+
+void* po_function(void *lane)
+{
 
 }
 
@@ -87,6 +99,8 @@ int main(int argc, char* argv[])
   pthread_t thread_PO;
   pthread_attr_t attr;
 
+  long t1 = 0, t2 = 1, t3 = 2, t4 = 3;
+
 
   struct Car araba;
 
@@ -109,12 +123,12 @@ pthread_mutex_init(&southMutex, NULL);
 pthread_mutex_init(&westMutex, NULL);
 
 
-pthread_create(&thread_N, &attr, road_function, (void *)northMutex);
-pthread_create(&thread_E, &attr, road_function, (void *)eastMutex);
-pthread_create(&thread_S, &attr, road_function, (void *)southMutex);
-pthread_create(&thread_W, &attr, road_function, (void *)westMutex);
+pthread_create(&thread_N, &attr, road_function, (void *)t1);
+pthread_create(&thread_E, &attr, road_function, (void *)t2);
+pthread_create(&thread_S, &attr, road_function, (void *)t3);
+pthread_create(&thread_W, &attr, road_function, (void *)t4);
 
-pthread_create(&thread_PO, &attr, center_thread_function, NULL);
+pthread_create(&thread_PO, &attr, po_function, NULL);
 
 
 
