@@ -49,38 +49,43 @@ void* road_function(void *lane)
   gettimeofday(&currentTime, NULL);
 
   while(startTime.tv_sec+simulationTime > currentTime.tv_sec){
+
     printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
-    printf("Locking the intersection\n");
 
   pthread_mutex_lock(&mutex);
   printf("locked the intersection as lane %d\n", lane);
+  struct Car newcar;
+  newcar.id=car_count;
+  car_count++;
+  newcar.arrivalTime=currentTime;
   switch((long)lane){
     case 0:
     printf("North\n");
 
-    struct Car newcar;
-    newcar.id=car_count;
-    car_count++;
-    newcar.arrivalTime=currentTime;
     northQ.push(newcar);
     break;
     case 1:
     printf("East\n");
 
+    eastQ.push(newcar);
     break;
     case 2:
     printf("South\n");
 
+    southQ.push(newcar);
     break;
     case 3:
     printf("West\n");
 
+    westQ.push(newcar);
     break;
 
   }
   pthread_mutex_unlock(&mutex);
-  printf("unlocked the intersection as lane %d\n", lane);
-  //  pthread_sleep(1);
+
+
+
+    pthread_sleep(1);
     gettimeofday(&currentTime, NULL);
 
   }
@@ -129,12 +134,11 @@ void* po_function(void *lane)
     if(northQ.size()>=5 || eastQ.size()>=5 || southQ.size()>=5 || westQ.size()>=5 )
     {
     dirSelected =0;
-          printf("hi\n");
     continue;
 
     }
     else if(selectedQ.size()!=0){
-      printf("======================================\n");
+      printf("===================================\n" );
       printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
       selectedQ.pop();
       *allLanes[dir] = selectedQ;
@@ -148,7 +152,7 @@ void* po_function(void *lane)
   }
 
   pthread_mutex_unlock (&mutex);
-  // pthread_mutex_destroy(&mutex);
+  pthread_mutex_destroy(&mutex);
   }
   pthread_exit(NULL);
 
