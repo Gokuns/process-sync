@@ -8,7 +8,9 @@ KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
 #include <time.h>
 #include <sys/time.h>
 #include <queue>
-using std::queue;
+#include <string.h>
+
+using namespace std;
 
 #define NUM_THREADS 5 /* 4 different lanes + 1 PO */
 
@@ -26,6 +28,12 @@ queue <Car> northQ;
 queue <Car> eastQ;
 queue <Car> southQ;
 queue <Car> westQ;
+
+int simulationTime; //command line arg with -s
+double p; //command line arg with -p
+time_t startTime; //start time of the simulation
+time_t currentTime;
+
 
 
 
@@ -69,7 +77,25 @@ int pthread_sleep (int seconds)
 
 int main(int argc, char* argv[])
 {
-  pthread_sleep(3);
+  pthread_t thread_N;
+  pthread_t thread_E;
+  pthread_t thread_S;
+  pthread_t thread_W;
+
+  pthread_t thread_PO;
+
+  struct Car araba;
+
+  for(int i = 1; i < argc; i++) { /* argv[0] is the program name */
+  if(strcmp(argv[i], "-s") == 0) {
+    simulationTime = atoi(argv[i+1]);
+  } else if(strcmp(argv[i], "-p") == 0) {
+    p = (double) atof(argv[i+1]);
+  }
+}
+
+printf("simulation time: %d\n",simulationTime);
+printf("probability: %f\n",p);
 
 
 
