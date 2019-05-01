@@ -98,8 +98,14 @@ void* po_function(void *lane)
 {
 
   while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
-
       pthread_mutex_lock (&mutex);
+      if(dirSelected==1)
+      {
+      if(northQ.size()>=5 || eastQ.size()>=5 || southQ.size()>=5 || westQ.size()>=5 )
+      {
+      dirSelected =0;
+      }
+    }
     if(dirSelected==0)
     {
     int sz=0;
@@ -131,19 +137,14 @@ void* po_function(void *lane)
   }if(dirSelected==1)
   {
     queue <Car> selectedQ = *allLanes[dir];
-    if(northQ.size()>=5 || eastQ.size()>=5 || southQ.size()>=5 || westQ.size()>=5 )
-    {
-    dirSelected =0;
-    continue;
-
-    }
-    else if(selectedQ.size()!=0){
+    if(selectedQ.size()!=0){
       printf("===================================\n" );
       printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
       selectedQ.pop();
       *allLanes[dir] = selectedQ;
       pthread_sleep(1);
       gettimeofday(&currentTime, NULL);
+        printf("ho\n" );
     }else
     {
       dirSelected = 0;
@@ -152,7 +153,6 @@ void* po_function(void *lane)
   }
 
   pthread_mutex_unlock (&mutex);
-  pthread_mutex_destroy(&mutex);
   }
   pthread_exit(NULL);
 
@@ -249,6 +249,7 @@ pthread_join(thread_W, NULL);
 pthread_join(thread_PO, NULL);
 
 printf("Latest@!!@#!@  %d\n", northQ.size());
+pthread_exit(NULL);
 }
 
 /******************************************************************************
