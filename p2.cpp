@@ -144,7 +144,7 @@ void* po_function(void *lane)
       dir =1;
     //  printf("size of eastQ: %d\n", eastQ.size());
     }
-    if(northQ.size()>=sz)      pthread_sleep(1);
+    if(northQ.size()>=sz)
     {
       sz = northQ.size();
       dir =0;
@@ -162,13 +162,8 @@ void* po_function(void *lane)
       printf("\t%d\n",northQ.size() );
       printf("%d\t\t%d\n",westQ.size(), eastQ.size() );
       printf("\t%d\n", southQ.size());
-      pthread_mutex_unlock (&mutex);
-      pthread_sleep(1);
+
       gettimeofday(&currentTime, NULL);
-<<<<<<< HEAD
-=======
-        // printf("ho\n" );
->>>>>>> 65279ef4db5ea2c8a211f0e9a665e4f4c33c49ad
     }else
     {
       dirSelected = 0;
@@ -176,7 +171,7 @@ void* po_function(void *lane)
 
   }
   pthread_mutex_unlock (&mutex);
-
+      pthread_sleep(1);
   }
   pthread_exit(NULL);
 
