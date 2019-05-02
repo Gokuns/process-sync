@@ -58,15 +58,18 @@ void* road_function(void *lane)
   newcar.id=car_count;
   car_count++;
   newcar.arrivalTime=currentTime;
+
   float probab = 0.0;
   if ((long) lane == 0)
   probab = 1-p;
   else
   probab=p;
 
+  // probab=p;
+
   int randy = rand();
   float tl = (float)randy/RAND_MAX;
-  // printf("The probab is %f of lane %d\n", tl, lane );
+  printf("The probab is %f of lane %d\n", tl, lane );
   if(tl < probab){
     pthread_mutex_lock(&mutex);
     // printf("locked the intersection as lane %d\n", lane);
@@ -77,22 +80,29 @@ void* road_function(void *lane)
   switch((long)lane){
     case 0:
     printf("North\n");
+    newcar.direction=0;
 
     northQ.push(newcar);
 
     break;
     case 1:
     printf("East\n");
+    newcar.direction=1;
+
 
     eastQ.push(newcar);
     break;
     case 2:
     printf("South\n");
+    newcar.direction=2;
+
 
     southQ.push(newcar);
     break;
     case 3:
     printf("West\n");
+    newcar.direction=3;
+
 
     westQ.push(newcar);
     break;
