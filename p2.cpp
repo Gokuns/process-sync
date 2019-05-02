@@ -119,9 +119,9 @@ void* road_function(void *lane)
 
     }
     printf("After car addition!!!!!!!!!!!!!!!!!1\n" );
-    printf("\t%d\n",northQ.size() );
-    printf("%d\t\t%d\n",westQ.size(), eastQ.size() );
-    printf("\t%d\n", southQ.size());
+    printf("\t%ld\n",northQ.size() );
+    printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
+    printf("\t%ld\n", southQ.size());
     pthread_mutex_unlock(&mutex);
 
 
@@ -183,9 +183,9 @@ void* po_function(void *lane)
         printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
         selectedQ.pop();
         *allLanes[dir] = selectedQ;
-        printf("\t%d\n",northQ.size() );
-        printf("%d\t\t%d\n",westQ.size(), eastQ.size() );
-        printf("\t%d\n", southQ.size());
+        printf("\t%ld\n",northQ.size() );
+        printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
+        printf("\t%ld\n", southQ.size());
 
         gettimeofday(&currentTime, NULL);
       }else
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
   gettimeofday(&startTime, NULL);
   gettimeofday(&northTimer, NULL);
 
-  printf("%f\n", startTime.tv_sec);
+  printf("%ld\n", startTime.tv_sec);
   int randy = rand();
   float tl = (float)randy/RAND_MAX;
 
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
 
   pthread_join(thread_PO, NULL);
 
-  printf("Latest@!!@#!@  %d\n", northQ.size());
+  printf("Latest@!!@#!@  %ld\n", northQ.size());
 }
 
 /******************************************************************************
