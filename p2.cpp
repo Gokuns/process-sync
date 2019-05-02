@@ -24,6 +24,7 @@ struct Car {
 };
 
 pthread_mutex_t mutex;
+pthread_cond_t conditionvar;
 
 queue <Car> northQ;
 queue <Car> eastQ;
@@ -127,7 +128,7 @@ void* po_function(void *lane)
       dir =1;
     //  printf("size of eastQ: %d\n", eastQ.size());
     }
-    if(northQ.size()>=sz)
+    if(northQ.size()>=sz)      pthread_sleep(1);
     {
       sz = northQ.size();
       dir =0;
@@ -142,17 +143,20 @@ void* po_function(void *lane)
       printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
       selectedQ.pop();
       *allLanes[dir] = selectedQ;
+      printf("\t%d\n",northQ.size() );
+      printf("%d\t\t%d\n",westQ.size(), eastQ.size() );
+      printf("\t%d\n", southQ.size());
+      pthread_mutex_unlock (&mutex);
       pthread_sleep(1);
       gettimeofday(&currentTime, NULL);
-        printf("ho\n" );
     }else
     {
       dirSelected = 0;
     }
 
   }
-
   pthread_mutex_unlock (&mutex);
+
   }
   pthread_exit(NULL);
 
@@ -249,7 +253,6 @@ pthread_join(thread_W, NULL);
 pthread_join(thread_PO, NULL);
 
 printf("Latest@!!@#!@  %d\n", northQ.size());
-pthread_exit(NULL);
 }
 
 /******************************************************************************
