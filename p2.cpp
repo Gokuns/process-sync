@@ -50,14 +50,30 @@ void* road_function(void *lane)
 
   while(startTime.tv_sec+simulationTime > currentTime.tv_sec){
 
-    printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
+    // printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
 
-  pthread_mutex_lock(&mutex);
-  printf("locked the intersection as lane %d\n", lane);
+
   struct Car newcar;
   newcar.id=car_count;
   car_count++;
   newcar.arrivalTime=currentTime;
+  float probab = 0.0;
+  if ((long) lane == 0)
+  probab = 1-p;
+  else
+  probab=p;
+
+  int randy = rand();
+  float tl = (float)randy/RAND_MAX;
+  printf("The probab is %f of lane %d\n", tl, lane );
+  if(tl < probab){
+    pthread_mutex_lock(&mutex);
+    printf("locked the intersection as lane %d\n", lane);
+  }else{
+    pthread_sleep(1);
+    continue;
+  }
+  printf("%f\n", probab );
   switch((long)lane){
     case 0:
     printf("North\n");
@@ -144,7 +160,7 @@ void* po_function(void *lane)
       *allLanes[dir] = selectedQ;
       pthread_sleep(1);
       gettimeofday(&currentTime, NULL);
-        printf("ho\n" );
+        // printf("ho\n" );
     }else
     {
       dirSelected = 0;
@@ -191,7 +207,7 @@ int main(int argc, char* argv[])
   printf("simulation time: %d\n",simulationTime);
   printf("probability: %f\n",p);
   gettimeofday(&startTime, NULL);
-  printf("%f\n", startTime.tv_sec);
+  // printf("%f\n", startTime.tv_sec);
   int randy = rand();
   float tl = (float)randy/RAND_MAX;
 
