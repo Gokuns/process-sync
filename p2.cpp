@@ -154,25 +154,23 @@ void* po_function(void *lane)
       {
         sz = westQ.size();
         dir =3;
-        //  printf("size of westQ: %d\n", westQ.size());
       }
       if(southQ.size()>=sz)
       {
         sz = southQ.size();
         dir =2;
-        //  printf("size of southQ: %d\n", southQ.size());
+
       }
       if(eastQ.size()>=sz)
       {
         sz = eastQ.size();
         dir =1;
-        //  printf("size of eastQ: %d\n", eastQ.size());
       }
       if(northQ.size()>=sz)
       {
         sz = northQ.size();
         dir =0;
-        // printf("size of northQ: %d\n", northQ.size());
+
       }
       dirSelected = 1;
     }if(dirSelected==1)
@@ -245,35 +243,23 @@ int main(int argc, char* argv[])
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_mutex_init(&mutex, NULL);
   struct Car araba1;
-  araba1.id=130;
+  araba1.id=0;
   araba1.direction = 0;
   struct Car araba2;
-  araba2.id=132;
-  araba2.direction = 0;
+  araba2.id=1;
+  araba2.direction = 1;
   struct Car araba3;
-  araba3.id=133;
-  araba3.direction = 3;
+  araba3.id=2;
+  araba3.direction = 2;
   struct Car araba4;
-  araba4.id=134;
+  araba4.id=3;
   araba4.direction = 3;
-  struct Car araba5;
-  araba5.id=135;
-  araba5.direction = 3;
-  struct Car araba6;
-  araba6.id=136;
-  araba6.direction = 2;
-  struct Car araba7;
-  araba7.id=137;
-  araba7.direction = 2;
+
 
   northQ.push(araba1);
   northQ.push(araba2);
   westQ.push(araba3);
   westQ.push(araba4);
-  westQ.push(araba5);
-  southQ.push(araba6);
-  southQ.push(araba7);
-
 
 
   pthread_create(&thread_N, &attr, road_function, (void *)t1);
