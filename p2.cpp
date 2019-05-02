@@ -73,7 +73,7 @@ void* road_function(void *lane)
       probab=1;
     }
 
-    // probab=p;
+     // probab=p;
 
     int randy = rand();
     float tl = (float)randy/RAND_MAX;
@@ -140,12 +140,36 @@ void* po_function(void *lane)
 
   while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
     pthread_mutex_lock (&mutex);
+
     if(dirSelected==1)
     {
       if(northQ.size()>=5 || eastQ.size()>=5 || southQ.size()>=5 || westQ.size()>=5 )
       {
         dirSelected =0;
       }
+    }
+    if(currentTime.tv_sec - westQ.front().arrivalTime.tv_sec>=20 && westQ.size()>0){
+      printf("%ld\n",currentTime.tv_sec - westQ.front().arrivalTime.tv_sec );
+      printf("west is waiting for a long time\n");
+      dir = 3;
+      dirSelected = 1;
+    }
+    if(currentTime.tv_sec - southQ.front().arrivalTime.tv_sec>=20 && southQ.size()>0){
+            printf("%ld\n",currentTime.tv_sec - southQ.front().arrivalTime.tv_sec );
+      printf("south is waiting for a long time\n");
+      dir = 2;
+      dirSelected = 1;
+    }
+    if(currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec>=20 && eastQ.size()>0){
+            printf("%ld\n",currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec );
+      printf("east is waiting for a long time\n");
+      dir = 1;
+      dirSelected = 1;
+    }
+    if(currentTime.tv_sec - northQ.front().arrivalTime.tv_sec>=20 && northQ.size()>0){
+      printf("north is waiting for a long time\n");
+      dir = 0;
+      dirSelected = 1;
     }
     if(dirSelected==0)
     {
@@ -185,25 +209,21 @@ void* po_function(void *lane)
         printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
         printf("\t%ld\n", southQ.size());
 
-        gettimeofday(&currentTime, NULL);
+
       }else
       {
+
         dirSelected = 0;
       }
 
     }
+    gettimeofday(&currentTime, NULL);
     pthread_mutex_unlock (&mutex);
     pthread_sleep(1);
   }
   pthread_exit(NULL);
 
 }
-
-
-
-
-
-
 
 int main(int argc, char* argv[])
 {
@@ -245,20 +265,24 @@ int main(int argc, char* argv[])
   struct Car araba1;
   araba1.id=0;
   araba1.direction = 0;
+  araba1.arrivalTime = startTime;
   struct Car araba2;
   araba2.id=1;
   araba2.direction = 1;
+  araba2.arrivalTime = startTime;
   struct Car araba3;
   araba3.id=2;
   araba3.direction = 2;
+  araba3.arrivalTime = startTime;
   struct Car araba4;
   araba4.id=3;
   araba4.direction = 3;
+  araba4.arrivalTime = startTime;
 
 
   northQ.push(araba1);
-  northQ.push(araba2);
-  westQ.push(araba3);
+  eastQ.push(araba2);
+  southQ.push(araba3);
   westQ.push(araba4);
 
 
