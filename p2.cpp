@@ -25,6 +25,10 @@ struct Car {
 
 pthread_mutex_t mutex;
 pthread_cond_t conditionvar;
+pthread_mutex_t road_mutex;
+pthread_cond_t road_cond;
+
+
 
 queue <Car> northQ;
 queue <Car> eastQ;
@@ -38,7 +42,7 @@ struct timeval currentTime;
 struct timeval northTimer;
 int dirSelected= 0;
 int dir = 0;
-
+bool car_exist = true;
 char lanes[4][6] = {"North", "East", "South", "West"};
 queue <Car> *allLanes[4]= {&northQ, &eastQ, &southQ, &westQ};
 
@@ -60,7 +64,7 @@ void* road_function(void *lane)
     newcar.id=car_count;
     car_count++;
     newcar.arrivalTime=currentTime;
-
+    newcar.direction=(int) ((long)lane);
     float probab = 0.0;
     if ((long) lane == 0){
       probab = 1-p;
@@ -73,63 +77,73 @@ void* road_function(void *lane)
       probab=1;
     }
 
-     // probab=p;
+    // probab=0.005;
 
     int randy = rand();
     float tl = (float)randy/RAND_MAX;
     // printf("The probab is %f of lane %d\n", tl, lane );
     if(tl < probab){
-      pthread_mutex_lock(&mutex);
+      pthread_mutex_lock(&road_mutex);
       // printf("locked the intersection as lane %d\n", lane);
-    }else{
+      switch((long)lane){
+        case 0:
+        printf("North\n");
+        northQ.push(newcar);
+        gettimeofday(&northTimer, NULL);
+        break;
+        case 1:
+        printf("East\n");
+        eastQ.push(newcar);
+        break;
+        case 2:
+        printf("South\n");
+        southQ.push(newcar);
+        break;
+        case 3:
+        printf("West\n");
+        westQ.push(newcar);
+        break;
+
+      }
+      printf("After car addition!!!!!!!!!!!!!!!!!1 at time %ld \n", currentTime.tv_sec);
+      printf("\t%ld\n",northQ.size() );
+      printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
+      printf("\t%ld\n", southQ.size());
+
+      if (!car_exist){
+        car_exist=true;
+        pthread_cond_signal(&road_cond);
+      }else{
+        car_exist=false;
+        printf("no car here\n" );
+      }
+
+      pthread_mutex_unlock(&road_mutex);
+
+
+      gettimeofday(&currentTime, NULL);
+
       pthread_sleep(1);
-      continue;
-    }
-    switch((long)lane){
-      case 0:
-      printf("North\n");
-      newcar.direction=0;
+      // gettimeofday(&currentTime, NULL);
 
-      northQ.push(newcar);
-      gettimeofday(&northTimer, NULL);
+    }else{
 
-
-      break;
-      case 1:
-      printf("East\n");
-      newcar.direction=1;
-
-
-      eastQ.push(newcar);
-      break;
-      case 2:
-      printf("South\n");
-      newcar.direction=2;
-
-
-      southQ.push(newcar);
-      break;
-      case 3:
-      printf("West\n");
-      newcar.direction=3;
-
-
-      westQ.push(newcar);
-      break;
+      pthread_sleep(1);
+      gettimeofday(&currentTime, NULL);
 
     }
-    printf("After car addition!!!!!!!!!!!!!!!!!1\n" );
-    printf("\t%ld\n",northQ.size() );
-    printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
-    printf("\t%ld\n", southQ.size());
-    pthread_mutex_unlock(&mutex);
-
-
-
-    pthread_sleep(1);
-    gettimeofday(&currentTime, NULL);
 
   }
+  pthread_mutex_lock(&road_mutex);
+
+  car_exist=true;
+  pthread_mutex_unlock(&road_mutex);
+
+
+  printf("Lane %ld now signaling to exit\n", lane );
+  pthread_cond_signal(&road_cond);
+  printf("now to exit\n" );
+
   pthread_exit(NULL);
 
 
@@ -139,7 +153,7 @@ void* po_function(void *lane)
 {
 
   while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
-    pthread_mutex_lock (&mutex);
+    pthread_mutex_lock (&road_mutex);
 
     if(dirSelected==1)
     {
@@ -155,13 +169,13 @@ void* po_function(void *lane)
       dirSelected = 1;
     }
     if(currentTime.tv_sec - southQ.front().arrivalTime.tv_sec>=20 && southQ.size()>0){
-            printf("%ld\n",currentTime.tv_sec - southQ.front().arrivalTime.tv_sec );
+      printf("%ld\n",currentTime.tv_sec - southQ.front().arrivalTime.tv_sec );
       printf("south is waiting for a long time\n");
       dir = 2;
       dirSelected = 1;
     }
     if(currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec>=20 && eastQ.size()>0){
-            printf("%ld\n",currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec );
+      printf("%ld\n",currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec );
       printf("east is waiting for a long time\n");
       dir = 1;
       dirSelected = 1;
@@ -196,12 +210,23 @@ void* po_function(void *lane)
         dir =0;
 
       }
+      if(sz == 0){
+        car_exist=false;
+        printf("no cars around at time %ld\n", currentTime.tv_sec);
+        pthread_cond_wait(&road_cond, &road_mutex);
+        printf("Signal received that new car arrived at time %ld \n", currentTime.tv_sec);
+        pthread_mutex_unlock(&road_mutex);
+        pthread_sleep(3);
+        printf("Slpet for 3 secs at time %ld \n", currentTime.tv_sec);
+
+        continue;
+      }
       dirSelected = 1;
     }if(dirSelected==1)
     {
       queue <Car> selectedQ = *allLanes[dir];
       if(selectedQ.size()!=0){
-        printf("===================================\n" );
+        printf("===================================\n at time %ld \n", currentTime.tv_sec);
         printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
         selectedQ.pop();
         *allLanes[dir] = selectedQ;
@@ -218,7 +243,7 @@ void* po_function(void *lane)
 
     }
     gettimeofday(&currentTime, NULL);
-    pthread_mutex_unlock (&mutex);
+    pthread_mutex_unlock (&road_mutex);
     pthread_sleep(1);
   }
   pthread_exit(NULL);
@@ -261,7 +286,9 @@ int main(int argc, char* argv[])
 
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-  pthread_mutex_init(&mutex, NULL);
+  pthread_mutex_init(&road_mutex, NULL);
+  pthread_cond_init(&road_cond, NULL);
+
   struct Car araba1;
   araba1.id=0;
   araba1.direction = 0;
@@ -302,8 +329,11 @@ int main(int argc, char* argv[])
   pthread_join(thread_W, NULL);
 
   pthread_join(thread_PO, NULL);
+  pthread_attr_destroy(&attr);
+  pthread_mutex_destroy(&road_mutex);
+  pthread_cond_destroy(&road_cond);
 
-  printf("Latest@!!@#!@  %ld\n", northQ.size());
+
 }
 
 /******************************************************************************
