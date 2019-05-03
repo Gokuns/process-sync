@@ -57,9 +57,8 @@ void* road_function(void *lane)
 
 
   while(startTime.tv_sec+simulationTime > currentTime.tv_sec){
-
     // printf("id is %ld , current time is %ld \n" , lane, currentTime.tv_sec);
-
+      pthread_mutex_lock(&road_mutex);
     struct Car newcar;
     newcar.id=car_count;
     car_count++;
@@ -77,13 +76,14 @@ void* road_function(void *lane)
       probab=1;
     }
 
-    // probab=0.005;
+    //probab=0.1;
 
     int randy = rand();
     float tl = (float)randy/RAND_MAX;
     // printf("The probab is %f of lane %d\n", tl, lane );
     if(tl < probab){
-      pthread_mutex_lock(&road_mutex);
+
+      gettimeofday(&currentTime, NULL);
       // printf("locked the intersection as lane %d\n", lane);
       switch((long)lane){
         case 0:
@@ -100,39 +100,26 @@ void* road_function(void *lane)
         southQ.push(newcar);
         break;
         case 3:
-        printf("West\n");
+       printf("West\n");
         westQ.push(newcar);
         break;
 
       }
+      gettimeofday(&currentTime, NULL);
       printf("After car addition!!!!!!!!!!!!!!!!!1 at time %ld \n", currentTime.tv_sec);
       printf("\t%ld\n",northQ.size() );
       printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
       printf("\t%ld\n", southQ.size());
-
-      if (!car_exist){
         car_exist=true;
         pthread_cond_signal(&road_cond);
-      }else{
-        car_exist=false;
-        printf("no car here\n" );
-      }
-
       pthread_mutex_unlock(&road_mutex);
 
-
-      gettimeofday(&currentTime, NULL);
-
-      pthread_sleep(1);
-      // gettimeofday(&currentTime, NULL);
+     pthread_sleep(1);
 
     }else{
-
-      pthread_sleep(1);
-      gettimeofday(&currentTime, NULL);
-
+    pthread_mutex_unlock(&road_mutex);
+    pthread_sleep(1);
     }
-
   }
   pthread_mutex_lock(&road_mutex);
 
@@ -154,6 +141,7 @@ void* po_function(void *lane)
 
   while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
     pthread_mutex_lock (&road_mutex);
+    gettimeofday(&currentTime, NULL);
 
     if(dirSelected==1)
     {
@@ -226,6 +214,7 @@ void* po_function(void *lane)
     {
       queue <Car> selectedQ = *allLanes[dir];
       if(selectedQ.size()!=0){
+            // gettimeofday(&currentTime, NULL);
         printf("===================================\n at time %ld \n", currentTime.tv_sec);
         printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
         selectedQ.pop();
@@ -233,18 +222,19 @@ void* po_function(void *lane)
         printf("\t%ld\n",northQ.size() );
         printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
         printf("\t%ld\n", southQ.size());
-
+        gettimeofday(&currentTime, NULL);
+        pthread_mutex_unlock (&road_mutex);
+        pthread_sleep(1);
 
       }else
       {
 
         dirSelected = 0;
+        gettimeofday(&currentTime, NULL);
+        pthread_mutex_unlock (&road_mutex);
       }
 
     }
-    gettimeofday(&currentTime, NULL);
-    pthread_mutex_unlock (&road_mutex);
-    pthread_sleep(1);
   }
   pthread_exit(NULL);
 
@@ -278,6 +268,7 @@ int main(int argc, char* argv[])
   printf("probability: %f\n",p);
   gettimeofday(&startTime, NULL);
   gettimeofday(&northTimer, NULL);
+  gettimeofday(&currentTime, NULL);
 
   printf("%ld\n", startTime.tv_sec);
   int randy = rand();
@@ -365,6 +356,7 @@ int pthread_sleep (int seconds)
   pthread_mutex_unlock (&mutex);
   pthread_mutex_destroy(&mutex);
   pthread_cond_destroy(&conditionvar);
+  gettimeofday(&currentTime, NULL);
 
   //Upon successful completion, a value of zero shall be returned
   return res;
