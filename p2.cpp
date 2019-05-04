@@ -23,6 +23,7 @@ struct Car {
   struct timeval crossTime;
   int direction;
 };
+FILE *police_log_ptr;
 
 pthread_mutex_t mutex;
 pthread_cond_t conditionvar;
@@ -78,7 +79,7 @@ void* road_function(void *lane)
       probab=1;
     }
 
-    //probab=0.1;
+    // probab=0.01;
 
     int randy = rand();
     float tl = (float)randy/RAND_MAX;
@@ -206,9 +207,32 @@ void* po_function(void *lane)
       if(sz == 0){
         car_exist=false;
         printf("no cars around at time %ld\n", currentTime.tv_sec);
+
+police_log_ptr = fopen("police.log", "a+");
+char buf[100];
+strftime(buf,sizeof(buf), "%H:%M:%S", localtime(&currentTime.tv_sec));
+
+fprintf(police_log_ptr, "%s\t Cell Phone\n", buf );
+fclose(police_log_ptr);
         pthread_cond_wait(&road_cond, &road_mutex);
         printf("Signal received that new car arrived at time %ld \n", currentTime.tv_sec);
+        if((startTime.tv_sec+simulationTime > currentTime.tv_sec)){
+        police_log_ptr = fopen("police.log", "a+");
+        char bufy[100];
+        strftime(bufy,sizeof(bufy), "%H:%M:%S", localtime(&currentTime.tv_sec));
+
+        fprintf(police_log_ptr, "%s\t Honk\n",bufy);
+        fclose(police_log_ptr);
+      }else{
+        police_log_ptr = fopen("police.log", "a+");
+        char bufy[100];
+        strftime(bufy,sizeof(bufy), "%H:%M:%S", localtime(&currentTime.tv_sec));
+
+        fprintf(police_log_ptr, "%s\t Shift Over\n",bufy);
+        fclose(police_log_ptr);
+      }
         pthread_mutex_unlock(&road_mutex);
+
         pthread_sleep(3);
         printf("Slpet for 3 secs at time %ld \n", currentTime.tv_sec);
 
@@ -256,6 +280,12 @@ int main(int argc, char* argv[])
 
   pthread_t thread_PO;
   pthread_attr_t attr;
+  police_log_ptr = fopen("police.log", "w");
+  fprintf(police_log_ptr, "Time \t\t Event\n");
+  // fprintf(police_log_ptr, "_____ \t ____\n");
+  fclose(police_log_ptr);
+
+
 
   long t1 = 0, t2 = 1, t3 = 2, t4 = 3;
 
