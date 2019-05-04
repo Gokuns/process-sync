@@ -11,6 +11,7 @@ KUSIS ID: 54040 PARTNER NAME: Gökalp Ünsal
 #include <string.h>
 #include <iostream>
 #include <queue>
+#define ROAD_FILE "car.log"
 using namespace std;
 int pthread_sleep (int seconds);
 
@@ -45,6 +46,7 @@ int dir = 0;
 bool car_exist = true;
 char lanes[4][6] = {"North", "East", "South", "West"};
 queue <Car> *allLanes[4]= {&northQ, &eastQ, &southQ, &westQ};
+
 
 
 void* road_function(void *lane)
@@ -139,7 +141,10 @@ void* road_function(void *lane)
 void* po_function(void *lane)
 {
 
+
   while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
+    FILE* po_ptr = fopen(ROAD_FILE, "a");
+    fprintf(po_ptr, "CarId\tDirection\tArrival-Time\tCross-Time\tWait-Time\n");
     pthread_mutex_lock (&road_mutex);
     gettimeofday(&currentTime, NULL);
 
@@ -235,6 +240,8 @@ void* po_function(void *lane)
       }
 
     }
+
+    fclose(po_ptr);
   }
   pthread_exit(NULL);
 
@@ -255,6 +262,11 @@ int main(int argc, char* argv[])
   srand(500);
 
   struct Car araba;
+
+  FILE* road_ptr = fopen(ROAD_FILE, "w");
+  fprintf(road_ptr, "CarId\tDirection\tArrival-Time\tCross-Time\tWait-Time\n");
+  fprintf(road_ptr, "================================================================================\n");
+
 
   for(int i = 1; i < argc; i++) { /* argv[0] is the program name */
     if(strcmp(argv[i], "-s") == 0) {
@@ -323,6 +335,7 @@ int main(int argc, char* argv[])
   pthread_attr_destroy(&attr);
   pthread_mutex_destroy(&road_mutex);
   pthread_cond_destroy(&road_cond);
+  fclose(road_ptr);
 
 
 }
