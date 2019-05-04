@@ -144,8 +144,7 @@ void* po_function(void *lane)
 
 
   while (startTime.tv_sec+simulationTime > currentTime.tv_sec) {
-    FILE* po_ptr = fopen(ROAD_FILE, "a");
-    fprintf(po_ptr, "CarId\tDirection\tArrival-Time\tCross-Time\tWait-Time\n");
+    FILE* po_ptr = fopen(ROAD_FILE, "a+");
     pthread_mutex_lock (&road_mutex);
     gettimeofday(&currentTime, NULL);
 
@@ -246,12 +245,22 @@ fclose(police_log_ptr);
             // gettimeofday(&currentTime, NULL);
         printf("===================================\n at time %ld \n", currentTime.tv_sec);
         printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
+        gettimeofday(&currentTime, NULL);
+        struct Car selected = selectedQ.front();
+        char buff[100];
+        strftime(buff,sizeof(buff), "%H:%M:%S", localtime(&selected.arrivalTime.tv_sec));
+        char currT[100];
+        strftime(currT,sizeof(currT), "%H:%M:%S", localtime(&currentTime.tv_sec));
+
+
+        fprintf(po_ptr,"%d\t%s\t\t%s\t%s\t%ld\n", selected.id, lanes[selected.direction], buff,currT, currentTime.tv_sec - selected.arrivalTime.tv_sec );
         selectedQ.pop();
         *allLanes[dir] = selectedQ;
         printf("\t%ld\n",northQ.size() );
         printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
         printf("\t%ld\n", southQ.size());
-        gettimeofday(&currentTime, NULL);
+
+
         pthread_mutex_unlock (&road_mutex);
         pthread_sleep(1);
 
@@ -295,8 +304,8 @@ int main(int argc, char* argv[])
 
   FILE* road_ptr = fopen(ROAD_FILE, "w");
   fprintf(road_ptr, "CarId\tDirection\tArrival-Time\tCross-Time\tWait-Time\n");
-  fprintf(road_ptr, "================================================================================\n");
-
+  fprintf(road_ptr, "==================================================================\n");
+  fclose(road_ptr);
 
   for(int i = 1; i < argc; i++) { /* argv[0] is the program name */
     if(strcmp(argv[i], "-s") == 0) {
@@ -365,7 +374,7 @@ int main(int argc, char* argv[])
   pthread_attr_destroy(&attr);
   pthread_mutex_destroy(&road_mutex);
   pthread_cond_destroy(&road_cond);
-  fclose(road_ptr);
+
 
 
 }
