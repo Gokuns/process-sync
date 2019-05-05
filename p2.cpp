@@ -30,6 +30,9 @@ pthread_cond_t conditionvar;
 pthread_mutex_t road_mutex;
 pthread_cond_t road_cond;
 
+int snaptshotTime;
+int sindex;
+
 
 
 queue <Car> northQ;
@@ -109,10 +112,10 @@ void* road_function(void *lane)
 
       }
       gettimeofday(&currentTime, NULL);
-      printf("After car addition!!!!!!!!!!!!!!!!!1 at time %ld \n", currentTime.tv_sec);
-      printf("\t%ld\n",northQ.size() );
-      printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
-      printf("\t%ld\n", southQ.size());
+      // printf("After car addition!!!!!!!!!!!!!!!!!1 at time %ld \n", currentTime.tv_sec);
+      // printf("\t%ld\n",northQ.size() );
+      // printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
+      // printf("\t%ld\n", southQ.size());
         car_exist=true;
         pthread_cond_signal(&road_cond);
       pthread_mutex_unlock(&road_mutex);
@@ -251,14 +254,17 @@ fclose(police_log_ptr);
         strftime(buff,sizeof(buff), "%H:%M:%S", localtime(&selected.arrivalTime.tv_sec));
         char currT[100];
         strftime(currT,sizeof(currT), "%H:%M:%S", localtime(&currentTime.tv_sec));
-
-
         fprintf(po_ptr,"%d\t%s\t\t%s\t%s\t%ld\n", selected.id, lanes[selected.direction], buff,currT, currentTime.tv_sec - selected.arrivalTime.tv_sec );
         selectedQ.pop();
         *allLanes[dir] = selectedQ;
-        printf("\t%ld\n",northQ.size() );
-        printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
-        printf("\t%ld\n", southQ.size());
+        if(((startTime.tv_sec + snaptshotTime) <=currentTime.tv_sec) && ((startTime.tv_sec + snaptshotTime + 3) >currentTime.tv_sec)){
+          printf("At %s:\n",currT);
+          printf("\t%ld\n",northQ.size() );
+          printf("%ld\t\t%ld\n",westQ.size(), eastQ.size() );
+          printf("\t%ld\n", southQ.size());
+
+        }
+
 
 
         pthread_mutex_unlock (&road_mutex);
@@ -312,6 +318,8 @@ int main(int argc, char* argv[])
       simulationTime = atoi(argv[i+1]);
     } else if(strcmp(argv[i], "-p") == 0) {
       p = (double) atof(argv[i+1]);
+    }else if (strcmp(argv[i], "-t") == 0) {
+      snaptshotTime = atoi(argv[i+1]);
     }
   }
 
