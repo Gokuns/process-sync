@@ -93,20 +93,20 @@ void* road_function(void *lane)
       // printf("locked the intersection as lane %d\n", lane);
       switch((long)lane){
         case 0:
-        printf("North\n");
+        // printf("North\n");
         northQ.push(newcar);
         gettimeofday(&northTimer, NULL);
         break;
         case 1:
-        printf("East\n");
+        // printf("East\n");
         eastQ.push(newcar);
         break;
         case 2:
-        printf("South\n");
+        // printf("South\n");
         southQ.push(newcar);
         break;
         case 3:
-       printf("West\n");
+       // printf("West\n");
         westQ.push(newcar);
         break;
 
@@ -133,9 +133,9 @@ void* road_function(void *lane)
   pthread_mutex_unlock(&road_mutex);
 
 
-  printf("Lane %ld now signaling to exit\n", lane );
+  // printf("Lane %ld now signaling to exit\n", lane );
   pthread_cond_signal(&road_cond);
-  printf("now to exit\n" );
+  // printf("now to exit\n" );
 
   pthread_exit(NULL);
 
@@ -208,7 +208,7 @@ void* po_function(void *lane)
       }
       if(sz == 0){
         car_exist=false;
-        printf("no cars around at time %ld\n", currentTime.tv_sec);
+        // printf("no cars around at time %ld\n", currentTime.tv_sec);
 
 police_log_ptr = fopen("police.log", "a+");
 char buf[100];
@@ -217,7 +217,7 @@ strftime(buf,sizeof(buf), "%H:%M:%S", localtime(&currentTime.tv_sec));
 fprintf(police_log_ptr, "%s\t Cell Phone\n", buf );
 fclose(police_log_ptr);
         pthread_cond_wait(&road_cond, &road_mutex);
-        printf("Signal received that new car arrived at time %ld \n", currentTime.tv_sec);
+        // printf("Signal received that new car arrived at time %ld \n", currentTime.tv_sec);
         if((startTime.tv_sec+simulationTime > currentTime.tv_sec)){
         police_log_ptr = fopen("police.log", "a+");
         char bufy[100];
@@ -236,7 +236,7 @@ fclose(police_log_ptr);
         pthread_mutex_unlock(&road_mutex);
 
         pthread_sleep(3);
-        printf("Slpet for 3 secs at time %ld \n", currentTime.tv_sec);
+        // printf("Slpet for 3 secs at time %ld \n", currentTime.tv_sec);
 
         continue;
       }
@@ -246,8 +246,8 @@ fclose(police_log_ptr);
       queue <Car> selectedQ = *allLanes[dir];
       if(selectedQ.size()!=0){
             // gettimeofday(&currentTime, NULL);
-        printf("===================================\n at time %ld \n", currentTime.tv_sec);
-        printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
+        // printf("===================================\n at time %ld \n", currentTime.tv_sec);
+        // printf("the crossing car is id:%d in %s lane\n", selectedQ.front().id, lanes[selectedQ.front().direction]);
         gettimeofday(&currentTime, NULL);
         struct Car selected = selectedQ.front();
         char buff[100];
@@ -329,7 +329,10 @@ int main(int argc, char* argv[])
   gettimeofday(&northTimer, NULL);
   gettimeofday(&currentTime, NULL);
 
-  printf("%ld\n", startTime.tv_sec);
+  char bufyy[100];
+  strftime(bufyy,sizeof(bufyy), "%H:%M:%S", localtime(&startTime.tv_sec));
+
+  printf("simulation starts at: %s\n", bufyy);
   int randy = rand();
   float tl = (float)randy/RAND_MAX;
 
