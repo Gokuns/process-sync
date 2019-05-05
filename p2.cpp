@@ -31,7 +31,7 @@ pthread_mutex_t road_mutex;
 pthread_cond_t road_cond;
 
 int snaptshotTime;
-int sindex;
+int waiting;
 
 
 
@@ -158,28 +158,33 @@ void* po_function(void *lane)
         dirSelected =0;
       }
     }
+    waiting=20;
     if(currentTime.tv_sec - westQ.front().arrivalTime.tv_sec>=20 && westQ.size()>0){
       printf("%ld\n",currentTime.tv_sec - westQ.front().arrivalTime.tv_sec );
       printf("west is waiting for a long time\n");
       dir = 3;
       dirSelected = 1;
+      waiting = currentTime.tv_sec - westQ.front().arrivalTime.tv_sec;
     }
-    if(currentTime.tv_sec - southQ.front().arrivalTime.tv_sec>=20 && southQ.size()>0){
+    if(currentTime.tv_sec - southQ.front().arrivalTime.tv_sec>=20 && southQ.size()>0 && currentTime.tv_sec - southQ.front().arrivalTime.tv_sec>=waiting){
       printf("%ld\n",currentTime.tv_sec - southQ.front().arrivalTime.tv_sec );
       printf("south is waiting for a long time\n");
       dir = 2;
       dirSelected = 1;
+      waiting = currentTime.tv_sec - southQ.front().arrivalTime.tv_sec;
     }
-    if(currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec>=20 && eastQ.size()>0){
+    if(currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec>=20 && eastQ.size()>0 && currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec>=waiting){
       printf("%ld\n",currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec );
       printf("east is waiting for a long time\n");
       dir = 1;
       dirSelected = 1;
+      waiting = currentTime.tv_sec - eastQ.front().arrivalTime.tv_sec;
     }
-    if(currentTime.tv_sec - northQ.front().arrivalTime.tv_sec>=20 && northQ.size()>0){
+    if(currentTime.tv_sec - northQ.front().arrivalTime.tv_sec>=20 && northQ.size()>0 && currentTime.tv_sec - northQ.front().arrivalTime.tv_sec>=waiting){
       printf("north is waiting for a long time\n");
       dir = 0;
       dirSelected = 1;
+      waiting = currentTime.tv_sec - northQ.front().arrivalTime.tv_sec;
     }
     if(dirSelected==0)
     {
